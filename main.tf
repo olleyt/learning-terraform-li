@@ -45,7 +45,7 @@ module "autoscaling" {
   max_size = 2
 
   vpc_zone_identifier = module.blog_vpc.public_subnets
-  target_group_arns   = module.blog_alb.target_groups.blog-instance.arn
+  target_group_arns   = aws_lb_target_group.blog-tg.arn
   security_groups = [module.blog_sg.security_group_id]
   
   image_id           = data.aws_ami.app_ami.id
@@ -65,6 +65,12 @@ module "blog_alb" {
     ex-http-https-redirect = {
       port     = 80
       protocol = "HTTP"
+      
+      default_action {
+        type             = "forward"
+        target_group_arn = aws_lb_target_group.blog-tg.arn
+      }
+
       redirect = {
         port        = "443"
         protocol    = "HTTPS"
@@ -73,19 +79,18 @@ module "blog_alb" {
     }
   }
 
-  target_groups = {
-    blog-instance = {
-      name_prefix      = "blog-"
-      protocol         = "HTTP"
-      port             = 80
-      target_type      = "instance"
-    }
-  }
-
   tags = {
     Environment = "dev"
     Project     = "Example"
   }
+}
+
+# ALB Target Group
+resource "aws_lb_target_group" "blog-tg" {
+  name     = "blog-target-group"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = module.blog_vpc.vpc_id
 }
 
 module "blog_sg" {
