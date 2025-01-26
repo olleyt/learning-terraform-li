@@ -1,10 +1,10 @@
 # S3 Bucket
-resource "aws_s3_bucket" "tf-lambda-s3-events-260125-bucket" {
+resource "aws_s3_bucket" "${var.bucket_name}" {
   bucket = "my-input-bucket"  # Change to your desired bucket name
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.tf-lambda-s3-events-260125-bucket.id
+  bucket = aws_s3_bucket.var.bucket_name.id
 
   eventbridge = true
 }
@@ -19,7 +19,7 @@ resource "aws_cloudwatch_event_rule" "s3_event" {
     detail-type = ["Object Created"]
     detail = {
       bucket = {
-        name = [aws_s3_bucket.tf-lambda-s3-events-260125-bucket.id]
+        name = [aws_s3_bucket.var.bucket_name.id]
       }
       object = {
         key = [{
