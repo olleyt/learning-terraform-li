@@ -7,10 +7,10 @@ logger.setLevel(logging.INFO)
 
 def handler(event, context):
     try:
-        # Extract bucket and file details from CloudTrail event
+        # Extract bucket and file details from event
         detail = event['detail']
-        bucket_name = detail['requestParameters']['bucketName']
-        object_key = detail['requestParameters']['key']
+        bucket_name = detail['bucket']['name']
+        object_key = detail['object']['key']
         
         logger.info(f"Hello! A new file '{object_key}' was uploaded to bucket '{bucket_name}'")
         
@@ -23,7 +23,6 @@ def handler(event, context):
         }
     except Exception as e:
         logger.error(f"Error processing event: {str(e)}")
-        logger.error(f"Event structure: {json.dumps(event)}")
         return {
             'statusCode': 500,
             'body': json.dumps({
