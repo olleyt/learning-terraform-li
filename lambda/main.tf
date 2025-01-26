@@ -16,12 +16,12 @@ resource "aws_cloudwatch_event_rule" "s3_event" {
 
   event_pattern = jsonencode({
     source      = ["aws.s3"]
-    detail-type = ["Object Created"]
+    detail-type = ["AWS API Call via CloudTrail"]
     detail = {
-      bucket = {
-        name = [aws_s3_bucket.input_bucket.id]
-      }
-      object = {
+      eventSource = ["s3.amazonaws.com"]
+      eventName   = ["PutObject"]
+      requestParameters = {
+        bucketName = [aws_s3_bucket.input_bucket.id]
         key = [{
           prefix = var.input_folder
         }]
