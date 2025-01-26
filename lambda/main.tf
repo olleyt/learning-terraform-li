@@ -29,3 +29,28 @@ resource "aws_cloudwatch_event_rule" "s3_event" {
     }
   })
 }
+
+# Lambda Function using AWS Lambda Module
+module "lambda_function" {
+  source  = "terraform-aws-modules/lambda/aws"
+  version = "~> 5.0"
+
+  function_name = "s3-event-processor"
+  description   = "Lambda function to process S3 events"
+  handler       = "index.handler"
+  runtime       = "python3.11"
+
+  source_path = "./src"
+
+  create_role = false
+  lambda_role = aws_iam_role.lambda_role.arn
+
+  environment_variables = {
+    BUCKET_NAME = aws_s3_bucket.input_bucket.id
+    INPUT_FOLDER = var.input_folder
+  }
+  tags = {
+    Environment = "dev"
+    Terraform   = "true"
+  }
+}  
