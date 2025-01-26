@@ -53,4 +53,19 @@ module "lambda_function" {
     Environment = "dev"
     Terraform   = "true"
   }
-}  
+}
+
+resource "aws_cloudwatch_event_target" "lambda" {
+  rule      = aws_cloudwatch_event_rule.s3_event.name
+  target_id = "SendToLambda"
+  arn       = module.lambda_function.lambda_function_arn
+}
+
+# Lambda permission for EventBridge
+resource "aws_lambda_permission" "eventbridge" {
+  statement_id  = "AllowEventBridgeInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_function.lambda_function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.s3_event.arn
+}
