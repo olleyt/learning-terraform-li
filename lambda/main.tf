@@ -1,10 +1,10 @@
 # S3 Bucket
-resource "aws_s3_bucket" "${var.bucket_name}" {
-  bucket = "my-input-bucket"  # Change to your desired bucket name
+resource "aws_s3_bucket" "input_bucket" {
+  bucket = var.bucket_name
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.var.bucket_name.id
+  bucket = aws_s3_bucket.input_bucket.id
 
   eventbridge = true
 }
@@ -19,11 +19,11 @@ resource "aws_cloudwatch_event_rule" "s3_event" {
     detail-type = ["Object Created"]
     detail = {
       bucket = {
-        name = [aws_s3_bucket.var.bucket_name.id]
+        name = [aws_s3_bucket.input_bucket.id]
       }
       object = {
         key = [{
-          prefix = "input-folder/"  # Change to your desired folder path
+          prefix = var.input_folder
         }]
       }
     }
